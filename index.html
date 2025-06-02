@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk Notes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --cyan: #00fff2;
+            --purple: #bf00ff;
+        }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(-45deg, var(--purple), var(--cyan));
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .note {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .note:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px var(--cyan);
+        }
+        
+        .cyberpunk-button {
+            background: linear-gradient(45deg, var(--purple), var(--cyan));
+            border: none;
+            color: white;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .cyberpunk-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--cyan);
+        }
+        
+        .glitch-text {
+            text-shadow: 
+                2px 2px var(--cyan),
+                -2px -2px var(--purple);
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl font-bold text-white mb-8 text-center glitch-text">CYBER.NOTES</h1>
+        
+        <div class="mb-6">
+            <textarea id="noteInput" class="w-full p-4 bg-black/50 text-cyan-300 border-2 border-purple-500 rounded-lg focus:outline-none focus:border-cyan-400 placeholder-cyan-700" rows="4" placeholder="Enter your cyberpunk thoughts..."></textarea>
+            
+            <div class="flex justify-between mt-4">
+                <button onclick="addNote()" class="cyberpunk-button px-6 py-2 rounded-lg flex items-center gap-2">
+                    <i class="bi bi-plus-lg"></i>
+                    Add Note
+                </button>
+                <button onclick="clearNotes()" class="cyberpunk-button px-6 py-2 rounded-lg flex items-center gap-2">
+                    <i class="bi bi-trash3"></i>
+                    Clear All
+                </button>
+            </div>
+        </div>
+        
+        <div id="notesList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Notes will be added here dynamically -->
+        </div>
+    </div>
+
+    <script>
+        function addNote() {
+            const noteInput = document.getElementById('noteInput');
+            const notesList = document.getElementById('notesList');
+            const noteText = noteInput.value.trim();
+            
+            if (noteText) {
+                const noteElement = document.createElement('div');
+                noteElement.className = 'note p-4 rounded-lg text-white relative';
+                
+                const timestamp = new Date().toLocaleString();
+                noteElement.innerHTML = `
+                    <p class="mb-2">${noteText}</p>
+                    <div class="flex justify-between items-center text-sm text-cyan-400">
+                        <span>${timestamp}</span>
+                        <button onclick="deleteNote(this)" class="text-purple-400 hover:text-cyan-300 transition-colors">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                `;
+                
+                notesList.prepend(noteElement);
+                noteInput.value = '';
+                
+                // Save to localStorage
+                saveNotes();
+            }
+        }
+        
+        function deleteNote(button) {
+            button.closest('.note').remove();
+            saveNotes();
+        }
+        
+        function clearNotes() {
+            if (confirm('Are you sure you want to clear all notes?')) {
+                document.getElementById('notesList').innerHTML = '';
+                localStorage.removeItem('cyberpunkNotes');
+            }
+        }
+        
+        function saveNotes() {
+            const notes = document.getElementById('notesList').innerHTML;
+            localStorage.setItem('cyberpunkNotes', notes);
+        }
+        
+        // Load saved notes on page load
+        window.onload = function() {
+            const savedNotes = localStorage.getItem('cyberpunkNotes');
+            if (savedNotes) {
+                document.getElementById('notesList').innerHTML = savedNotes;
+            }
+        }
+        
+        // Add keyboard shortcut (Enter) to add notes
+        document.getElementById('noteInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                addNote();
+            }
+        });
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
